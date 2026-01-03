@@ -153,3 +153,10 @@ export function renderAnsi(text: string): HTMLElement {
     }
     return span;
 }
+
+export function stripAnsi(text: string): string {
+    return parseAnsi(text)
+        .filter(t => !t.isEscape)
+        .map(t => t.text)
+        .join("");
+}

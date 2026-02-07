@@ -1,5 +1,7 @@
 # Ansi Highlight
 
+[中文文档](README_zh.md)
+
 An Obsidian plugin for displaying ANSI-highlighted text, ideal for recording terminal output with colors and styles. Recommended to use with [ansi_copy](https://github.com/Ryanu9/ansi_copy).
 
 ![1770488144451](image/README/1770488144451.gif)

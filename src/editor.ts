@@ -288,45 +288,6 @@ export const ansiPlugin = ViewPlugin.fromClass(class {
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged || update.selectionSet || update.state.field(ansiToggleState) !== update.startState.field(ansiToggleState)) {
             this.decorations = ansiDecorations(update.view);
-
-            // Check for auto-reset on selection change
-            if (update.selectionSet) {
-                const state = update.view.state;
-                const toggleMap = state.field(ansiToggleState);
-                const selection = state.selection;
-
-                // Find blocks that are RAW but do not intersect with ANY selection range
-                const effects: StateEffect<any>[] = [];
-
-                for (const [start, blockState] of toggleMap.entries()) {
-                    if (blockState.isRaw) {
-                        let intersects = false;
-                        for (const range of selection.ranges) {
-                            if (range.from <= blockState.to && range.to >= start) {
-                                intersects = true;
-                                break;
-                            }
-                        }
-
-                        if (!intersects) {
-                            // Cursor left the block -> Reset to Preview (isRaw = false)
-                            effects.push(toggleAnsiEffect.of({ from: start, to: blockState.to, isRaw: false }));
-                        }
-                    }
-                }
-
-                if (effects.length > 0) {
-                    // Dispatch effects in a separate microtask or immediately?
-                    // We are inside update(). Dispatching within update might cause loops / warnings.
-                    // But State update inside ViewPlugin update is usually frowned upon if it triggers re-layout.
-                    // However, we are changing a Field, which will trigger another update.
-                    // CodeMirror warns about this.
-                    // Better to schedule it.
-                    setTimeout(() => {
-                        update.view.dispatch({ effects });
-                    }, 0);
-                }
-            }
         }
     }
 }, {

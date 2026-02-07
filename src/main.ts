@@ -14,6 +14,27 @@ export default class MyPlugin extends Plugin {
 			const container = el.createEl("pre", { cls: "ansi-block" });
 			container.appendChild(ansiEl);
 
+			// Helper function to enter edit mode
+			const enterEditMode = () => {
+				const sectionInfo = ctx.getSectionInfo(el);
+				if (sectionInfo) {
+					const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+					if (view) {
+						const visibleLine = sectionInfo.lineStart + 1;
+						view.editor.setCursor({ line: visibleLine, ch: 0 });
+						view.editor.focus();
+					}
+				}
+			};
+
+			// Add Ctrl+click listener to switch to edit mode
+			container.addEventListener("click", (event) => {
+				if (event.ctrlKey) {
+					enterEditMode();
+					event.preventDefault();
+				}
+			});
+
 			// Add right-click listener to switch to edit mode
 			container.addEventListener("contextmenu", (event) => {
 				const menu = new Menu();
@@ -23,20 +44,7 @@ export default class MyPlugin extends Plugin {
 						.setTitle("✏️ Edit Code Block")
 						.setIcon("pencil")
 						.onClick(() => {
-							// Find the position of this block
-							const sectionInfo = ctx.getSectionInfo(el);
-							if (sectionInfo) {
-								// Logic to focus editor
-								const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-								if (view) {
-									// Move cursor to start of block + 1 line (inside content)
-									// sectionInfo.lineStart is the ```ansi line.
-									const visibleLine = sectionInfo.lineStart + 1;
-									// Set cursor
-									view.editor.setCursor({ line: visibleLine, ch: 0 });
-									view.editor.focus();
-								}
-							}
+							enterEditMode();
 						});
 				});
 
